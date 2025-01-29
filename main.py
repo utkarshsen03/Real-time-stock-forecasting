@@ -361,7 +361,7 @@ def main():
             
             if analysis == "Compare Stocks":
                 ticker2_data = yf.download(ticker2,start=start_date,end=end_date)
-                ticker2_new_data = ticker2_data["Adj Close"].reset_index().melt(id_vars="Date",var_name="Close",value_name="value")
+                ticker2_new_data = ticker2_data["Close"].reset_index().melt(id_vars="Date",var_name="Close",value_name="value")
                 df = pd.merge(data,ticker2_data,on="Date")
                 fig = px.line(x=df.index,y=[df["Close"][ticker],df["Close"][ticker2]],markers=True,title=f"{ticker} and {ticker2} Closing Price")
                 fig.for_each_trace(lambda trace: trace.update(name=trace.name.replace("wide_variable_0",ticker).replace("wide_variable_1",ticker2)))
