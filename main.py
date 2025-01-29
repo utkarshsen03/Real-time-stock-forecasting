@@ -324,7 +324,7 @@ def main():
 
     with dashboard:
         # try:
-            new_data = data["Adj Close"].reset_index().melt(id_vars="Date",var_name="Close",value_name="value")
+            new_data = data["Close"].reset_index().melt(id_vars="Date",var_name="Close",value_name="value")
             fig = px.line(new_data,x="Date",y="value",title=f"{info['longName']} Closing Price")
             st.plotly_chart(fig)
             
