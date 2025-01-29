@@ -154,30 +154,32 @@ def generate_forecast(model, scaler, last_data,symbol, forecast_period=30):
     Generate future price forecasts using the trained model
     Updated to handle feature consistency and prevent scaling errors
     """
-    # try:
+    try:
         # Validate input data
-    if last_data is None or len(last_data) < 50:
-        raise ValueError("Insufficient data for forecasting. Need at least 50 data points.")
+        if last_data is None or len(last_data) < 50:
+            raise ValueError("Insufficient data for forecasting. Need at least 50 data points.")
+            
+        # Prepare feature data with the exact columns used in training
+        feature_data = pd.DataFrame({
+            'MA_10': last_data['Close'][symbol].rolling(window=10, min_periods=1).mean(),
+            'MA_50': last_data['Close'][symbol].rolling(window=50, min_periods=1).mean(),
+            'RSI': calculate_rsi(last_data['Close'][symbol]),
+            'Volume': last_data['Volume'][symbol].fillna(method='ffill')  # Forward fill missing values
+        })
         
-    # Prepare feature data with the exact columns used in training
-    feature_data = pd.DataFrame({
-        'MA_10': last_data['Close'][symbol].rolling(window=10, min_periods=1).mean(),
-        'MA_50': last_data['Close'][symbol].rolling(window=50, min_periods=1).mean(),
-        'RSI': calculate_rsi(last_data['Close'][symbol]),
-        'Volume': last_data['Volume'][symbol].fillna(method='ffill')  # Forward fill missing values
-    })
-    
-    # Drop any remaining NaN values
-    feature_data = feature_data.dropna()
-    if len(feature_data) == 0:
-        raise ValueError("No valid data points after feature engineering")
+        # Drop any remaining NaN values
+        feature_data = feature_data.dropna()
+        if len(feature_data) == 0:
+            raise ValueError("No valid data points after feature engineering")
+            
+        # Get the last complete row of features
+        last_features = feature_data.iloc[-1:]
         
-    # Get the last complete row of features
-    last_features = feature_data.iloc[-1:]
-    
-    if last_features.empty:
-        raise ValueError("Could not get valid features for prediction")
-        
+        if last_features.empty:
+            raise ValueError("Could not get valid features for prediction")
+    except Exception as e:
+        print(f"An Error Occurred:{e}")
+            
     
     # Generate predictions
     predictions = []
@@ -286,7 +288,7 @@ def main():
         left.write(f"**Company:** {info['longName']}")
         middle.write(f"**Sector:** {info['sector']}")
         right.write(f"**Industry:** {info['industry']}")
-        left.write(f"**Market Cap:** {info['marketCap']}")
+        left.write(f"**Market Cap:** {float(info['marketCap'])/1e6} Crore")
         middle.write(f"**P/E Ratio:** {info['trailingPE']}")
     except Exception as e:
         pass
@@ -323,7 +325,7 @@ def main():
         st.info(f"If a person has invested 1 unit of local currency in {start_date}, it would have been {round(new_data2['Cummulative Return'].iloc[-1],2)} by {end_date}")
 
     with dashboard:
-        # try:
+        try:
             new_data = data["Close"].reset_index().melt(id_vars="Date",var_name="Close",value_name="value")
             fig = px.line(new_data,x="Date",y="value",title=f"{info['longName']} Closing Price")
             st.plotly_chart(fig)
@@ -377,11 +379,11 @@ def main():
                     st.plotly_chart(fig)
                     
                 
-        # except Exception as e:
-            # st.error("Invalid Ticker")
+        except Exception as e:
+            st.error("Invalid Ticker")
 
     with  forecasting:
-        #try:
+        try:
             # Ensure we have enough data
             if len(data) < 50:
                 st.warning("Insufficient data for quantitative analysis. Need at least 50 data points.")
@@ -543,8 +545,8 @@ def main():
                     
             else:
                 st.warning("Could not perform quantitative analysis. Check the data quality.")
-        #except Exception as e:
-        #    st.error(f"Error in quantitative analysis: {str(e)}")
+        except Exception as e:
+            st.error(f"Error in quantitative analysis: {str(e)}")
 
 
     with news:
