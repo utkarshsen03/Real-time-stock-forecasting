@@ -288,7 +288,7 @@ def main():
         left.write(f"**Company:** {info['longName']}")
         middle.write(f"**Sector:** {info['sector']}")
         right.write(f"**Industry:** {info['industry']}")
-        left.write(f"**Market Cap:** {float(info['marketCap'])/1e6} Crore")
+        left.write(f"**Market Cap:** {info['marketCap']}")
         middle.write(f"**P/E Ratio:** {info['trailingPE']}")
     except Exception as e:
         pass
