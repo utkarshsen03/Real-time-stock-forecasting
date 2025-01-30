@@ -325,7 +325,7 @@ def main():
         st.info(f"If a person has invested 1 unit of local currency in {start_date}, it would have been {round(new_data2['Cummulative Return'].iloc[-1],2)} by {end_date}")
 
     with dashboard:
-        try:
+        # try:
             new_data = data["Close"].reset_index().melt(id_vars="Date",var_name="Close",value_name="value")
             fig = px.line(new_data,x="Date",y="value",title=f"{info['longName']} Closing Price")
             st.plotly_chart(fig)
@@ -379,8 +379,8 @@ def main():
                     st.plotly_chart(fig)
                     
                 
-        except Exception as e:
-            st.error("Invalid Ticker")
+        # except Exception as e:
+            # st.error("Invalid Ticker")
 
     with  forecasting:
         try:
